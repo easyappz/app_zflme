@@ -1,0 +1,7 @@
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; color: var(--text); margin-bottom: 12px; }
+.panel.error { border-color: #c45858; color: #ffdede; }
+.muted { color: var(--muted); }
+.select { width: 160px; padding: 8px; background: #0f1530; border: 1px solid var(--border); border-radius: 10px; color: var(--text); }
+.list { list-style: none; padding: 0; margin: 0; }
+.list-item { padding: 8px 6px; border-bottom: 1px dashed var(--border); }
+.list-item:last-child { border: 0; }

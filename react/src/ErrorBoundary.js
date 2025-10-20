@@ -8,7 +8,6 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Отправляем ошибку в iframe или родительское окно
     console.error('Ошибка в React:', error, errorInfo);
     window.parent.postMessage({
       type: 'reactError',
@@ -19,8 +18,9 @@ class ErrorBoundary extends React.Component {
   }
 
   render() {
+    const TS = Date.now();
     if (this.state.hasError) {
-      return <h1>Что-то пошло не так.</h1>;
+      return <h1 data-easytag={`${TS}-src/ErrorBoundary.js-fallback`}>Что-то пошло не так.</h1>;
     }
 
     return this.props.children;

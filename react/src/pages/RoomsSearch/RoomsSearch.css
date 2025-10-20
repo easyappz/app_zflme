@@ -1,0 +1,13 @@
+.search-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; color: var(--text); }
+.search-form { margin-top: 10px; }
+.search-input { width: 100%; padding: 12px 14px; background: #0f1530; border: 1px solid var(--border); border-radius: 12px; color: var(--text); outline: none; }
+.results { margin-top: 16px; }
+.hint { color: var(--muted); background: #0f1530; border: 1px dashed var(--border); padding: 12px; border-radius: 12px; }
+.error { color: #ffdede; border: 1px solid #c45858; background: #2a0f15; padding: 12px; border-radius: 12px; }
+.results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.results-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px; color: var(--text); }
+.list { list-style: none; padding: 0; margin: 8px 0 0 0; }
+.list-item { padding: 8px 6px; border-bottom: 1px dashed var(--border); }
+.list-item:last-child { border-bottom: 0; }
+.link { color: #9fcaff; text-decoration: none; }
+.muted { color: var(--muted); display: block; margin-top: 2px; }

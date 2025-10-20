@@ -1,0 +1,2 @@
+.map-page .map-header { margin-bottom: 12px; color: var(--text); }
+.map-container { width: 100%; height: 70vh; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
