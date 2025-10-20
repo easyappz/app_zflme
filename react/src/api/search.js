@@ -5,4 +5,6 @@ export async function unifiedSearch(params = {}) {
   return res.data; // { query, campuses, buildings, rooms }
 }
 
+export { unifiedSearch as searchAll };
+
 export default { unifiedSearch };
