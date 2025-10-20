@@ -1,364 +1,273 @@
-version: 0.1.0
-basePath: /api
-description: |
-  Base API schema for the HSE Navigation clone. Endpoints return JSON.
-  Authentication is expected via headers (e.g., Bearer token) if needed.
-  No cookies are used. This file must be updated on every backend change.
+openapi: 3.0.0
+info:
+  title: Easyappz Navigation API (HSE-like)
+  version: 1.0.0
+  description: |
+    API schema and data models for a simplified navigation service similar to navigation.hse.ru.
+    This file documents available endpoints and MongoDB models used by the backend.
+servers:
+  - url: /api
+
+endpoints:
+  - method: GET
+    path: /hello
+    request:
+      query: {}
+      body: null
+    response:
+      status: 200
+      contentType: application/json
+      example:
+        message: Hello from API!
+  - method: GET
+    path: /status
+    request:
+      query: {}
+      body: null
+    response:
+      status: 200
+      contentType: application/json
+      example:
+        status: ok
+        timestamp: 2025-01-01T00:00:00.000Z
+        uptime: 12.34
+  - method: GET
+    path: /campuses
+    request:
+      query:
+        q:
+          type: string
+          required: false
+      body: null
+    response:
+      status: 200
+      contentType: application/json
+      example:
+        resource: campuses
+        items: []
+        message: Not implemented yet
+  - method: GET
+    path: /buildings
+    request:
+      query:
+        campus:
+          type: string
+          description: Campus id (ObjectId)
+          required: false
+      body: null
+    response:
+      status: 200
+      contentType: application/json
+      example:
+        resource: buildings
+        items: []
+        message: Not implemented yet
+  - method: GET
+    path: /rooms
+    request:
+      query:
+        building:
+          type: string
+          description: Building id (ObjectId)
+          required: false
+        floor:
+          type: number
+          required: false
+        q:
+          type: string
+          required: false
+      body: null
+    response:
+      status: 200
+      contentType: application/json
+      example:
+        resource: rooms
+        items: []
+        message: Not implemented yet
+  - method: GET
+    path: /search
+    request:
+      query:
+        q:
+          type: string
+          required: false
+      body: null
+    response:
+      status: 200
+      contentType: application/json
+      example:
+        query: ''
+        results: []
+        message: Not implemented yet
+  - method: POST
+    path: /navigation/route
+    request:
+      query: {}
+      body:
+        type: object
+        properties:
+          from:
+            type: object
+            properties:
+              roomId: { type: string, description: Room ObjectId, nullable: true }
+              point: { type: array, items: [number, number], description: [lng, lat], nullable: true }
+          to:
+            type: object
+            properties:
+              roomId: { type: string, description: Room ObjectId, nullable: true }
+              point: { type: array, items: [number, number], description: [lng, lat], nullable: true }
+      required: true
+    response:
+      status: 200
+      contentType: application/json
+      example:
+        route: []
+        distance: 0
+        time: 0
+        message: Not implemented yet
+  - method: GET
+    path: /schema
+    request:
+      query: {}
+      body: null
+    response:
+      status: 200
+      contentType: application/x-yaml
+      example: |
+        # This file itself is returned by the server.
 
 models:
   Campus:
-    _id: string
-    name: string
-    code: string
-    city: string
-    location:
-      lat: number
-      lng: number
+    collection: campuses
+    description: Campus entity with geospatial center and bounds.
+    fields:
+      name: { type: string, required: true }
+      code: { type: string, required: true, unique: true, uppercase: true }
+      center: { type: [number, number], index: 2dsphere, required: true, note: [lng, lat] }
+      bounds: { type: GeoJSON Polygon, index: 2dsphere, required: false }
+      city: { type: string, required: true }
+      description: { type: string, required: false }
+    indexes:
+      - { fields: { center: 2dsphere } }
+      - { fields: { bounds: 2dsphere } }
+      - { fields: { code: 1 }, options: { unique: true } }
+      - { fields: { city: 1 } }
+    example:
+      _id: 675000000000000000000001
+      name: Moscow Campus
+      code: MSC
+      center: [37.618423, 55.751244]
+      bounds:
+        type: Polygon
+        coordinates:
+          - - [37.56, 55.72]
+            - [37.70, 55.72]
+            - [37.70, 55.79]
+            - [37.56, 55.79]
+            - [37.56, 55.72]
+      city: Moscow
+      description: Central campus in Moscow.
   Building:
-    _id: string
-    campusId: string
-    name: string
-    address: string
-    location:
-      lat: number
-      lng: number
+    collection: buildings
+    description: Building inside a campus with location and entrances.
+    fields:
+      campus: { type: ObjectId, ref: Campus, required: true }
+      name: { type: string, required: true }
+      code: { type: string, required: true }
+      address: { type: string, required: false }
+      location: { type: [number, number], index: 2dsphere, required: true }
+      entrances: { type: array, items: { name: string, location: [number, number] } }
+      floors: { type: number[], required: false }
+      description: { type: string, required: false }
+    indexes:
+      - { fields: { campus: 1, code: 1 }, options: { unique: true } }
+      - { fields: { location: 2dsphere } }
+      - { fields: { campus: 1 } }
+    example:
+      _id: 675000000000000000000010
+      campus: 675000000000000000000001
+      name: Main Building
+      code: GZ
+      address: Myasnitskaya St, 20
+      location: [37.6517, 55.7652]
+      entrances:
+        - name: Main Entrance
+          location: [37.6515, 55.7653]
+        - name: Side Entrance
+          location: [37.6519, 55.7651]
+      floors: [1, 2]
+      description: Primary academic building.
+  Floor:
+    collection: floors
+    description: Floor of a building with optional plan image and bbox polygon.
+    fields:
+      building: { type: ObjectId, ref: Building, required: true }
+      level: { type: number, required: true }
+      planImageUrl: { type: string, required: false }
+      bbox: { type: GeoJSON Polygon, required: false }
+    indexes:
+      - { fields: { building: 1, level: 1 }, options: { unique: true } }
+      - { fields: { building: 1 } }
+    example:
+      _id: 675000000000000000000020
+      building: 675000000000000000000010
+      level: 1
+      planImageUrl: https://example.com/plans/gz-floor-1.png
+      bbox:
+        type: Polygon
+        coordinates:
+          - - [37.6512, 55.7649]
+            - [37.6522, 55.7649]
+            - [37.6522, 55.7655]
+            - [37.6512, 55.7655]
+            - [37.6512, 55.7649]
   Room:
-    _id: string
-    buildingId: string
-    floor: number
-    name: string
-    number: string
-    type: string
-
-endpoints:
-  # Campuses
-  - path: /campuses
-    method: GET
-    request:
-      query:
-        page: number | optional
-        limit: number | optional
-        search: string | optional
-    response:
-      200:
-        items: Campus[]
-        total: number
-        page: number
-        limit: number
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /campuses/{id}
-    method: GET
-    request:
-      params:
-        id: string
-    response:
-      200:
-        item: Campus
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /campuses
-    method: POST
-    request:
-      body:
-        name: string
-        code: string
-        city: string
-        location:
-          lat: number
-          lng: number
-    response:
-      201:
-        item: Campus
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /campuses/{id}
-    method: PUT
-    request:
-      params:
-        id: string
-      body:
-        name: string | optional
-        code: string | optional
-        city: string | optional
-        location:
-          lat: number | optional
-          lng: number | optional
-    response:
-      200:
-        item: Campus
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /campuses/{id}
-    method: DELETE
-    request:
-      params:
-        id: string
-    response:
-      204: {}
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  # Buildings
-  - path: /buildings
-    method: GET
-    request:
-      query:
-        campusId: string | optional
-        page: number | optional
-        limit: number | optional
-        search: string | optional
-    response:
-      200:
-        items: Building[]
-        total: number
-        page: number
-        limit: number
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /buildings/{id}
-    method: GET
-    request:
-      params:
-        id: string
-    response:
-      200:
-        item: Building
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /buildings
-    method: POST
-    request:
-      body:
-        campusId: string
-        name: string
-        address: string
-        location:
-          lat: number
-          lng: number
-    response:
-      201:
-        item: Building
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /buildings/{id}
-    method: PUT
-    request:
-      params:
-        id: string
-      body:
-        campusId: string | optional
-        name: string | optional
-        address: string | optional
-        location:
-          lat: number | optional
-          lng: number | optional
-    response:
-      200:
-        item: Building
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /buildings/{id}
-    method: DELETE
-    request:
-      params:
-        id: string
-    response:
-      204: {}
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  # Rooms
-  - path: /rooms
-    method: GET
-    request:
-      query:
-        buildingId: string | optional
-        floor: number | optional
-        page: number | optional
-        limit: number | optional
-        search: string | optional
-    response:
-      200:
-        items: Room[]
-        total: number
-        page: number
-        limit: number
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /rooms/{id}
-    method: GET
-    request:
-      params:
-        id: string
-    response:
-      200:
-        item: Room
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /rooms
-    method: POST
-    request:
-      body:
-        buildingId: string
-        floor: number
-        name: string
-        number: string
-        type: string
-    response:
-      201:
-        item: Room
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /rooms/{id}
-    method: PUT
-    request:
-      params:
-        id: string
-      body:
-        buildingId: string | optional
-        floor: number | optional
-        name: string | optional
-        number: string | optional
-        type: string | optional
-    response:
-      200:
-        item: Room
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  - path: /rooms/{id}
-    method: DELETE
-    request:
-      params:
-        id: string
-    response:
-      204: {}
-      404:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  # Search
-  - path: /search
-    method: GET
-    request:
-      query:
-        q: string
-        scope: string | optional # campuses|buildings|rooms
-        limit: number | optional
-    response:
-      200:
-        results: []
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
-
-  # Navigation
-  - path: /navigation/route
-    method: POST
-    request:
-      body:
-        startRoomId: string
-        endRoomId: string
-        preferences: object | optional
-    response:
-      200:
-        route: []
-        distance: number
-        time: number
-      4xx:
-        error: string
-        message: string
-      5xx:
-        error: string
-        message: string
-        stack: string | optional
+    collection: rooms
+    description: Room on a floor. 'searchableText' is auto-computed from number/name/type/aliases.
+    fields:
+      building: { type: ObjectId, ref: Building, required: true }
+      floor: { type: number, required: true }
+      number: { type: string, required: true }
+      name: { type: string, required: false }
+      type: { type: string, required: false }
+      centroid: { type: [number, number], required: false }
+      aliases: { type: string[], required: false }
+      searchableText: { type: string, required: true, computed: true }
+    indexes:
+      - { fields: { building: 1 } }
+      - { fields: { floor: 1 } }
+      - { fields: { number: 1 } }
+      - { fields: { building: 1, floor: 1, number: 1 }, options: { unique: true } }
+      - { fields: { searchableText: text } }
+    example:
+      _id: 675000000000000000000030
+      building: 675000000000000000000010
+      floor: 1
+      number: '101'
+      name: Auditorium 101
+      type: auditorium
+      centroid: [37.6516, 55.7652]
+      aliases: ['A101']
+      searchableText: '101 auditorium 101 a101'
+  Edge:
+    collection: edges
+    description: Graph edge for indoor routing inside a building and floor.
+    fields:
+      building: { type: ObjectId, ref: Building, required: true }
+      floor: { type: number, required: true }
+      from: { type: object, properties: { room: ObjectId (Room) optional, point: [number, number] optional }, required: true }
+      to: { type: object, properties: { room: ObjectId (Room) optional, point: [number, number] optional }, required: true }
+      weight: { type: number, required: true, min: 0 }
+    indexes:
+      - { fields: { building: 1, floor: 1 } }
+      - { fields: { from.room: 1 } }
+      - { fields: { to.room: 1 } }
+    example:
+      _id: 675000000000000000000040
+      building: 675000000000000000000010
+      floor: 1
+      from:
+        room: 675000000000000000000030
+      to:
+        point: [37.65155, 55.76522]
+      weight: 5
