@@ -1,80 +1,10 @@
-:root {
-  --bg: #0b1021;
-  --card: #121738;
-  --accent: #4da5ff;
-  --text: #e7ecff;
-  --muted: #a8b0d5;
-  --border: #2a3160;
-}
-
-.container {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-.layout__header {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-}
-
-.brand {
-  color: var(--text);
-  text-decoration: none;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-
-.nav {
-  display: flex;
-  gap: 12px;
-}
-
-.nav__link {
-  color: var(--muted);
-  text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 10px;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.nav__link:hover {
-  background: rgba(77,165,255,0.1);
-  color: var(--text);
-}
-
-.nav__link--active {
-  color: var(--text);
-  background: rgba(77,165,255,0.2);
-}
-
-.layout__main {
-  background: linear-gradient(180deg, #0b1021 0%, #0e1330 100%);
-  min-height: calc(100vh - 120px);
-  padding: 24px 0 40px;
-}
-
-.layout__footer {
-  background: var(--bg);
-  border-top: 1px solid var(--border);
-}
-
-.footer__inner {
-  padding: 16px 0;
-}
-
-.footer__inner p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-}
+.layout-root { display: flex; min-height: 100vh; flex-direction: column; background: #0f1220; color: #e7e9ee; }
+.layout-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: #151832; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-text { font-weight: 700; letter-spacing: 0.4px; }
+.nav { display: flex; gap: 14px; }
+.nav a { color: #cfd3e0; text-decoration: none; padding: 8px 10px; border-radius: 8px; transition: background 0.2s, color 0.2s; }
+.nav a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav a.active { background: #2a2e57; color: #fff; }
+.layout-main { flex: 1; padding: 20px; width: 100%; max-width: 1100px; margin: 0 auto; }
+.layout-footer { padding: 14px 20px; background: #151832; border-top: 1px solid rgba(255,255,255,0.08); color: #a9afc6; }

@@ -1,7 +1,14 @@
-.panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; color: var(--text); margin-bottom: 12px; }
-.panel.error { border-color: #c45858; color: #ffdede; }
-.muted { color: var(--muted); }
-.select { width: 160px; padding: 8px; background: #0f1530; border: 1px solid var(--border); border-radius: 10px; color: var(--text); }
-.list { list-style: none; padding: 0; margin: 0; }
-.list-item { padding: 8px 6px; border-bottom: 1px dashed var(--border); }
-.list-item:last-child { border: 0; }
+.bd-root { display: flex; flex-direction: column; gap: 14px; }
+.bd-header { display: flex; align-items: center; gap: 12px; }
+.bd-back { background: #23264a; color: #e7e9ee; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+.bd-back:hover { background: #2a2e57; }
+.bd-title { margin: 0; font-size: 22px; }
+.bd-info { background: #12152a; border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 10px; color: #cfd3e0; }
+.bd-row { margin: 6px 0; }
+.bd-label { color: #9aa2c0; margin-right: 6px; }
+.bd-value { color: #e7e9ee; }
+.bd-subtitle { font-size: 18px; margin: 0; }
+.bd-rooms { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.bd-room { background: #151832; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+.bd-room-number { font-weight: 600; }
+.bd-room-floor { color: #9aa2c0; }

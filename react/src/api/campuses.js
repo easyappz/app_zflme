@@ -1,9 +1,8 @@
 import instance from './axios';
 
-// API: GET /api/campuses
-export async function getCampuses(params = { page: 1, limit: 100 }) {
+export async function listCampuses(params = {}) {
   const res = await instance.get('/api/campuses', { params });
-  return res.data;
+  return res.data; // { page, limit, total, items: [...] }
 }
 
-export default { getCampuses };
+export default { listCampuses };

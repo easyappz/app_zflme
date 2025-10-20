@@ -1,10 +1,8 @@
 import instance from './axios';
 
-export async function searchAll({ q, campusId, buildingId } = {}) {
-  const params = {};
-  if (q) params.q = q;
-  if (campusId) params.campusId = campusId;
-  if (buildingId) params.buildingId = buildingId;
+export async function unifiedSearch(params = {}) {
   const res = await instance.get('/api/search', { params });
-  return res.data;
+  return res.data; // { query, campuses, buildings, rooms }
 }
+
+export default { unifiedSearch };
