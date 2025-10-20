@@ -1,14 +1,48 @@
-.bd-root { display: flex; flex-direction: column; gap: 14px; }
-.bd-header { display: flex; align-items: center; gap: 12px; }
-.bd-back { background: #23264a; color: #e7e9ee; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
-.bd-back:hover { background: #2a2e57; }
-.bd-title { margin: 0; font-size: 22px; }
-.bd-info { background: #12152a; border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 10px; color: #cfd3e0; }
-.bd-row { margin: 6px 0; }
-.bd-label { color: #9aa2c0; margin-right: 6px; }
-.bd-value { color: #e7e9ee; }
-.bd-subtitle { font-size: 18px; margin: 0; }
-.bd-rooms { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-.bd-room { background: #151832; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-.bd-room-number { font-weight: 600; }
-.bd-room-floor { color: #9aa2c0; }
+.bd { display: flex; flex-direction: column; gap: 16px; }
+.bd__header { padding: 8px 0; }
+.bd__title { margin: 0; font-size: 24px; font-weight: 700; }
+.bd__subtitle { margin: 4px 0 0; color: #6b7280; }
+
+.bd__floors { border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
+.bd__floors-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.bd__floor-btn { padding: 8px 12px; border: 1px solid #d1d5db; background: #fff; border-radius: 8px; cursor: pointer; color: #111827; }
+.bd__floor-btn--active { background: #111827; color: #fff; border-color: #111827; }
+
+.bd__content { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; min-height: 480px; }
+@media (max-width: 900px) { .bd__content { grid-template-columns: 1fr; } }
+.bd__plan { position: relative; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; min-height: 360px; }
+
+.plan__viewport { position: relative; width: 100%; height: 100%; cursor: grab; }
+.plan__content { position: absolute; left: 50%; top: 50%; transform-origin: 0 0; }
+.plan__image { display: block; user-select: none; pointer-events: none; max-width: none; transform: translate(-50%, -50%); }
+.plan__controls { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 6px; }
+.plan__ctrl { padding: 6px 10px; border: 1px solid #d1d5db; background: #fff; border-radius: 8px; cursor: pointer; }
+.plan__placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280; }
+
+.bd__sidebar { display: flex; flex-direction: column; gap: 16px; }
+.bd__section-title { margin: 0 0 8px 0; font-size: 18px; font-weight: 600; }
+
+.bd__route { padding: 12px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; }
+.route__form { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.route__label { display: grid; gap: 4px; font-size: 14px; color: #374151; }
+.route__select { padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; }
+.route__actions { display: flex; gap: 8px; margin-top: 4px; }
+.route__result { margin-top: 8px; }
+.route__distance { margin: 0 0 6px 0; font-weight: 500; }
+.route__steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.route__step { padding: 6px 8px; background: #f3f4f6; border-radius: 8px; }
+
+.bd__rooms { padding: 12px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; }
+.rooms__list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; max-height: 420px; overflow: auto; }
+.rooms__item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 10px; }
+.rooms__item--active { border-color: #111827; background: #f9fafb; }
+.room__main { display: flex; gap: 8px; align-items: baseline; }
+.room__number { font-weight: 600; }
+.room__floor { color: #6b7280; font-size: 13px; }
+.room__actions { display: flex; gap: 6px; }
+
+.btn { padding: 8px 12px; border: 1px solid #d1d5db; background: #fff; color: #111827; border-radius: 8px; cursor: pointer; }
+.btn--primary { background: #111827; color: #fff; border-color: #111827; }
+.btn--small { padding: 6px 10px; font-size: 13px; }
+
+.bd__loading, .bd__error { padding: 24px; text-align: center; }

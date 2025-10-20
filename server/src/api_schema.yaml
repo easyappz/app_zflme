@@ -201,6 +201,32 @@ paths:
                 error: GetBuildingFloorsError
                 message: Detailed error message
                 details: { id: "123" }
+  /buildings/{id}/floor-plans:
+    get:
+      summary: Get floor plans metadata for a building
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Floor plans list
+          content:
+            application/json:
+              example:
+                buildingId: "662222222222222222222222"
+                items:
+                  - { level: 0, planImageUrl: "https://cdn.example.com/plans/SC_0.png" }
+                  - { level: 1, planImageUrl: "https://cdn.example.com/plans/SC_1.png" }
+        '500':
+          description: Error
+          content:
+            application/json:
+              example:
+                error: GetBuildingFloorPlansError
+                message: Detailed error message
+                details: { id: "123" }
   /buildings/{id}/rooms:
     get:
       summary: Get rooms for a building

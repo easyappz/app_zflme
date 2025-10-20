@@ -2,6 +2,7 @@
 
 const Building = require('@src/models/Building');
 const Room = require('@src/models/Room');
+const Floor = require('@src/models/Floor');
 const { getPagination } = require('@src/utils/pagination');
 
 async function listBuildings(req, res) {
@@ -90,4 +91,25 @@ async function getBuildingRooms(req, res) {
   }
 }
 
-module.exports = { listBuildings, getBuildingById, getBuildingFloors, getBuildingRooms };
+async function getBuildingFloorPlans(req, res) {
+  try {
+    const { id } = req.params;
+    const floors = await Floor.find({ building: id }).lean();
+    const items = floors
+      .map((f) => ({
+        level: f.level,
+        planImageUrl: f.planImageUrl || '',
+        bbox: f.bbox || null
+      }))
+      .sort((a, b) => a.level - b.level);
+    res.status(200).json({ buildingId: id, items });
+  } catch (error) {
+    res.status(500).json({
+      error: error.name || 'GetBuildingFloorPlansError',
+      message: error.message,
+      details: { id: req.params.id, stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined }
+    });
+  }
+}
+
+module.exports = { listBuildings, getBuildingById, getBuildingFloors, getBuildingRooms, getBuildingFloorPlans };
