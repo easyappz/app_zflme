@@ -2,37 +2,21 @@
 
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-
-const GeoPolygonSchema = new Schema(
-  {
-    type: { type: String, enum: ['Polygon'], default: 'Polygon' },
-    coordinates: { type: [[[Number]]], required: true }
-  },
-  { _id: false }
-);
+const { normalizeForSearch } = require('@src/utils/text');
 
 const CampusSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
-    code: { type: String, required: true, trim: true, uppercase: true, unique: true },
-    center: {
-      type: [Number],
-      required: true,
-      index: '2dsphere',
-      validate: {
-        validator: (v) => Array.isArray(v) && v.length === 2 && v.every((n) => typeof n === 'number'),
-        message: 'center must be [lng, lat]'
-      }
-    },
-    bounds: { type: GeoPolygonSchema, required: false },
-    city: { type: String, required: true, trim: true },
-    description: { type: String, trim: true }
+    code: { type: String, trim: true },
+    center: { type: [Number], default: [0, 0] }, // [lng, lat]
+    searchableText: { type: String, index: true }
   },
   { timestamps: true }
 );
 
-CampusSchema.index({ bounds: '2dsphere' });
-CampusSchema.index({ city: 1 });
-CampusSchema.index({ name: 1 });
+CampusSchema.pre('save', function nextSave(next) {
+  this.searchableText = normalizeForSearch([this.name, this.code].filter(Boolean).join(' '));
+  next();
+});
 
 module.exports = mongoose.model('Campus', CampusSchema);
