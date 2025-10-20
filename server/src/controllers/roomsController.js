@@ -3,6 +3,7 @@
 const Room = require('@src/models/Room');
 const { getPagination } = require('@src/utils/pagination');
 const { normalizeForSearch } = require('@src/utils/text');
+const { sendConditionalJSON } = require('@src/utils/http');
 
 async function listRooms(req, res) {
   try {
@@ -16,7 +17,6 @@ async function listRooms(req, res) {
       if (!Number.isNaN(floorNum)) filter.floor = floorNum;
     }
 
-    // Fetch base set then filter with includes (no regex)
     const baseItems = await Room.find(filter)
       .sort({ floor: 1, number: 1 })
       .lean();
@@ -30,9 +30,9 @@ async function listRooms(req, res) {
     const total = items.length;
     const paged = items.slice(skip, skip + limit);
 
-    res.status(200).json({ page, limit, total, items: paged });
+    return sendConditionalJSON(req, res, { page, limit, total, items: paged });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: error.name || 'ListRoomsError',
       message: error.message,
       details: { stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined }

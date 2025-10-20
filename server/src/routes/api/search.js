@@ -1,10 +1,11 @@
 'use strict';
 
 const express = require('express');
-const { searchAll } = require('@src/controllers/searchController');
+const { searchAll, suggest } = require('@src/controllers/searchController');
 
 const router = express.Router();
 
 router.get('/', searchAll);
+router.get('/suggest', suggest);
 
 module.exports = router;

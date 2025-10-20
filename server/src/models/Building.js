@@ -9,7 +9,6 @@ const BuildingSchema = new Schema(
     campusId: { type: Schema.Types.ObjectId, ref: 'Campus', required: true, index: true },
     name: { type: String, required: true, trim: true },
     code: { type: String, trim: true },
-    floors: { type: [Number], default: [] },
     center: { type: [Number], default: [0, 0] }, // [lng, lat]
     searchableText: { type: String, index: true }
   },

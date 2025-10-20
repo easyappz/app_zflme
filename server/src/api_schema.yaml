@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Campus Navigator API
-  version: 1.0.0
+  version: 1.1.0
   description: API for campuses, buildings, rooms, search and indoor navigation.
 servers:
   - url: /api
@@ -330,6 +330,9 @@ paths:
         - in: query
           name: buildingId
           schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20, maximum: 100 }
       responses:
         '200':
           description: Search results
@@ -349,6 +352,35 @@ paths:
             application/json:
               example:
                 error: SearchError
+                message: Detailed error message
+                details: { }
+  /search/suggest:
+    get:
+      summary: Suggestions for buildings and rooms (autocomplete)
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 10, maximum: 50 }
+      responses:
+        '200':
+          description: Suggest list
+          content:
+            application/json:
+              example:
+                query: "lib"
+                items:
+                  - { type: "building", id: "662222222222222222222223", title: "Library", subtitle: "LB", center: [37.62, 55.76] }
+                  - { type: "room", id: "663333333333333333333334", buildingId: "662222222222222222222223", title: "Reading Room", subtitle: "#301", floor: 3, point: [37.62, 55.76] }
+        '500':
+          description: Error
+          content:
+            application/json:
+              example:
+                error: SuggestError
                 message: Detailed error message
                 details: { }
   /navigation/route:
