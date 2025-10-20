@@ -55,6 +55,8 @@ function RoomsSearch() {
     setBuildingId('');
   }, [campusId]);
 
+  const normalizedQuery = useMemo(() => normalizeString(query), [query]);
+
   const { data: campusesData } = useQuery({
     queryKey: ['campuses', { limit: 100 }],
     queryFn: () => listCampuses({ page: 1, limit: 100 }),
@@ -73,8 +75,8 @@ function RoomsSearch() {
   }, [buildings]);
 
   const { data: roomsData, isLoading } = useQuery({
-    queryKey: ['rooms', { query, buildingId }],
-    queryFn: () => listRooms({ query: normalizeString(query) || undefined, buildingId: buildingId || undefined, page: 1, limit: 500 }),
+    queryKey: ['rooms', { query: normalizedQuery, buildingId }],
+    queryFn: () => listRooms({ query: normalizedQuery || undefined, buildingId: buildingId || undefined, page: 1, limit: 500 }),
   });
 
   const filteredRooms = useMemo(() => {
@@ -94,6 +96,72 @@ function RoomsSearch() {
   }, [filteredRooms]);
 
   const buildingIds = Object.keys(groupedByBuilding);
+
+  const hasQuery = normalizedQuery.length > 0;
+  const hasResults = buildingIds.length > 0;
+
+  let resultsContent = null;
+  if (isLoading) {
+    resultsContent = (
+      <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-loading`} className="rs-empty">Загрузка...</div>
+    );
+  } else if (!hasQuery) {
+    resultsContent = (
+      <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-enter`} className="rs-empty">Введите запрос, чтобы начать поиск</div>
+    );
+  } else if (!hasResults) {
+    resultsContent = (
+      <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-no`} className="rs-empty">Ничего не найдено</div>
+    );
+  } else {
+    resultsContent = buildingIds.map((bId) => {
+      const building = buildingMap[bId];
+      const rooms = groupedByBuilding[bId];
+      return (
+        <section data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-${bId}`} key={bId} className="rs-group">
+          <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-head`} className="rs-group-head">
+            <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-info`} className="rs-group-info">
+              <h2 data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-title`} className="rs-group-title">{building?.name || 'Неизвестное здание'}</h2>
+              {building?.code ? (
+                <span data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-code`} className="rs-group-code">{building.code}</span>
+              ) : null}
+            </div>
+            <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-actions`} className="rs-group-actions">
+              <button
+                data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-btn-open`}
+                className="rs-btn"
+                onClick={() => navigate(`/buildings/${bId}`)}
+              >
+                Открыть здание
+              </button>
+              <button
+                data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-btn-map`}
+                className="rs-btn secondary"
+                onClick={() => navigate('/map', { state: { focusBuildingId: bId } })}
+              >
+                На карте
+              </button>
+            </div>
+          </div>
+          <ul data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-list`} className="rs-room-list">
+            {rooms.map((r) => (
+              <li data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-${r._id}`} key={r._id} className="rs-room">
+                <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-left`} className="rs-room-left">
+                  <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-number`} className="rs-room-number">{highlightText(r.number || '', query)}</div>
+                  {r.name ? (
+                    <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-name`} className="rs-room-name">{highlightText(r.name || '', query)}</div>
+                  ) : null}
+                </div>
+                <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-right`} className="rs-room-right">
+                  <span data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-floor`} className="rs-room-floor">этаж {r.floor}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    });
+  }
 
   return (
     <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-root`} className="rs-root">
@@ -146,61 +214,7 @@ function RoomsSearch() {
       </div>
 
       <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-results`} className="rs-results">
-        {isLoading ? (
-          <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-loading`} className="rs-empty">Загрузка...</div>
-        ) : (!query ? (
-          <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-enter`} className="rs-empty">Введите запрос, чтобы начать поиск</div>
-        ) : (buildingIds.length === 0 ? (
-          <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-no`} className="rs-empty">Ничего не найдено</div>
-        ) : (
-          buildingIds.map((bId) => {
-            const building = buildingMap[bId];
-            const rooms = groupedByBuilding[bId];
-            return (
-              <section data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-${bId}`} key={bId} className="rs-group">
-                <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-head`} className="rs-group-head">
-                  <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-info`} className="rs-group-info">
-                    <h2 data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-title`} className="rs-group-title">{building?.name || 'Неизвестное здание'}</h2>
-                    {building?.code ? (
-                      <span data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-code`} className="rs-group-code">{building.code}</span>
-                    ) : null}
-                  </div>
-                  <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-group-actions`} className="rs-group-actions">
-                    <button
-                      data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-btn-open`}
-                      className="rs-btn"
-                      onClick={() => navigate(`/buildings/${bId}`)}
-                    >
-                      Открыть здание
-                    </button>
-                    <button
-                      data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-btn-map`}
-                      className="rs-btn secondary"
-                      onClick={() => navigate('/map', { state: { focusBuildingId: bId } })}
-                    >
-                      На карте
-                    </button>
-                  </div>
-                </div>
-                <ul data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-list`} className="rs-room-list">
-                  {rooms.map((r) => (
-                    <li data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-${r._id}`} key={r._id} className="rs-room">
-                      <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-left`} className="rs-room-left">
-                        <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-number`} className="rs-room-number">{highlightText(r.number || '', query)}</div>
-                        {r.name ? (
-                          <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-name`} className="rs-room-name">{highlightText(r.name || '', query)}</div>
-                        ) : null}
-                      </div>
-                      <div data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-right`} className="rs-room-right">
-                        <span data-easytag={`${TS}-src/pages/RoomsSearch/RoomsSearch.js-room-floor`} className="rs-room-floor">этаж {r.floor}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })
-        ))}
+        {resultsContent}
       </div>
     </div>
   );
